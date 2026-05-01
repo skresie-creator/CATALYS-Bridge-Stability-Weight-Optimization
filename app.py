@@ -180,8 +180,8 @@ shift = 160.59 # Matches the coordinate shift for visual alignment
 
 # Side Profile
 ax_side.add_patch(patches.Rectangle((rear_wheel_x, 20), x_whl - rear_wheel_x, 130, linewidth=2, edgecolor='black', facecolor='darkgray', alpha=0.7))
-ax_side.add_patch(patches.Rectangle((20 + shift, 150), 560, 800, linewidth=2, edgecolor='black', facecolor='lightgray', alpha=0.5))
-ax_side.add_patch(patches.Rectangle((20 + shift, 850), 700, 150, linewidth=2, edgecolor='black', facecolor='whitesmoke', alpha=0.9))
+ax_side.add_patch(patches.Rectangle((20 + shift-200, 150), 560, 800, linewidth=2, edgecolor='black', facecolor='lightgray', alpha=0.5))
+ax_side.add_patch(patches.Rectangle((20 + shift, 850), 900, 150, linewidth=2, edgecolor='black', facecolor='whitesmoke', alpha=0.9))
 
 # Front Profile
 ax_front.add_patch(patches.Rectangle((-w_y/2, 20), w_y, 100, linewidth=2, edgecolor='black', facecolor='darkgray', alpha=0.7))
