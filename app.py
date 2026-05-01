@@ -103,13 +103,16 @@ ax_bar = plt.subplot(2, 3, 3)
 ax_curve1 = plt.subplot(2, 2, 3)
 ax_curve2 = plt.subplot(2, 2, 4)
 
-ax_side.set_title("Side Profile (X-Z)"); ax_side.set_xlim(-200, 1000); ax_side.set_ylim(-50, 1450); ax_side.grid(True, linestyle='--')
+ax_side.set_title("Side Profile (X-Z)"); ax_side.set_xlim(-300, 1000); ax_side.set_ylim(-50, 1450); ax_side.grid(True, linestyle='--')
 ax_front.set_title("Front Profile (Y-Z)"); ax_front.set_xlim(-600, 600); ax_front.set_ylim(-50, 1450); ax_front.grid(True, linestyle='--')
 ax_bar.set_title("Current Safety Factors"); ax_bar.grid(axis='y', linestyle='--')
 ax_curve1.set_title("Wheelbase Expansion vs. Min Weight"); ax_curve1.set_xlabel('Added "d" to Wheelbase (mm)'); ax_curve1.set_ylabel("Min Weight (lbs)"); ax_curve1.grid(True, linestyle='--')
 ax_curve2.set_title("CW Repositioning vs. Min Weight"); ax_curve2.set_xlabel('CW Shift "d" (mm)'); ax_curve2.set_ylabel("Min Weight (lbs)"); ax_curve2.grid(True, linestyle='--')
 
-ax_side.add_patch(patches.Rectangle((0, 20), x_whl, 130, linewidth=2, edgecolor='black', facecolor='darkgray', alpha=0.7))
+# Chassis drawing
+rear_wheel_x = -160.59 
+
+ax_side.add_patch(patches.Rectangle((rear_wheel_x, 20), x_whl - rear_wheel_x, 130, linewidth=2, edgecolor='black', facecolor='darkgray', alpha=0.7))
 ax_side.add_patch(patches.Rectangle((20, 150), 280, 800, linewidth=2, edgecolor='black', facecolor='lightgray', alpha=0.5))
 ax_side.add_patch(patches.Rectangle((20, 850), 700, 150, linewidth=2, edgecolor='black', facecolor='whitesmoke', alpha=0.9))
 
@@ -118,33 +121,15 @@ ax_front.add_patch(patches.Rectangle((-160, 120), 320, 830, linewidth=2, edgecol
 ax_front.add_patch(patches.Rectangle((-120, 200), 240, 500, linewidth=1, edgecolor='gray', facecolor='dimgray', alpha=0.6))
 ax_front.add_patch(patches.Rectangle((-200, 950), 400, 300, linewidth=2, edgecolor='darkcyan', facecolor='cadetblue', alpha=0.9))
 
+# Counterweight drawing
 cw_w, cw_h = 120, 80
 ax_side.add_patch(patches.Rectangle((cw_x - cw_w/2, cw_z - cw_h/2), cw_w, cw_h, linewidth=2, edgecolor='navy', facecolor='blue', alpha=0.9))
 ax_front.add_patch(patches.Rectangle((cw_y - cw_w/2, cw_z - cw_h/2), cw_w, cw_h, linewidth=2, edgecolor='navy', facecolor='blue', alpha=0.9))
 
-ax_side.plot([0, x_whl], [0, 0], '^', markersize=18, color='red')
-ax_front.plot([-w_y/2, w_y/2], [0, 0], '^', markersize=18, color='red')
-ax_side.plot(com_new[0], com_new[2], 'X', markersize=14, color='lime', markeredgecolor='black')
-ax_front.plot(com_new[1], com_new[2], 'X', markersize=14, color='lime', markeredgecolor='black')
+# Draw the 2-inch radius caster wheels (50.8 mm)
+wheel_r = 50.8
+ax_side.add_patch(patches.Circle((rear_wheel_x, wheel_r), wheel_r, linewidth=2, edgecolor='darkred', facecolor='red', zorder=5))
+ax_side.add_patch(patches.Circle((x_whl, wheel_r), wheel_r, linewidth=2, edgecolor='darkred', facecolor='red', zorder=5))
 
-tests = ['Incline', 'Push Top', 'Push Arm', 'Obstacle', 'Shove']
-bars = ax_bar.bar(tests, current_fs, color=['mediumseagreen' if fs >= MIN_FS else 'crimson' for fs in current_fs])
-ax_bar.axhline(MIN_FS, color='black', linestyle='--', linewidth=2, label='Min (1.2)')
-ax_bar.legend()
-
-d_vals_wb = np.arange(0, 201, 20)
-d_vals_cw = np.arange(-400, 1, 20)
-wt_wb = [get_min_weight(cw_x, cw_z, cw_y, w_y + d, x_whl + d, m_stat) for d in d_vals_wb]
-wt_cwx = [get_min_weight(cw_x + d, cw_z, cw_y, w_y, x_whl, m_stat) for d in d_vals_cw]
-wt_cwz = [get_min_weight(cw_x, max(cw_z + d, 10), cw_y, w_y, x_whl, m_stat) for d in d_vals_cw]
-
-ax_curve1.plot(d_vals_wb, wt_wb, 'b-', linewidth=3)
-ax_curve1.axhline(350, color='red', linestyle='--', label='Target (350 lbs)'); ax_curve1.legend()
-ax_curve1.set_xlim(0, 200)
-
-ax_curve2.plot(d_vals_cw, wt_cwx, 'g-', linewidth=3, label='X Shift (Backward)')
-ax_curve2.plot(d_vals_cw, wt_cwz, 'purple', linewidth=3, label='Z Shift (Lower)')
-ax_curve2.axhline(350, color='red', linestyle='--', label='Target (350 lbs)'); ax_curve2.legend()
-ax_curve2.set_xlim(-400, 0)
-
-st.pyplot(fig)
+ax_front.add_patch(patches.Circle((-w_y/2, wheel_r), wheel_r, linewidth=2, edgecolor='darkred', facecolor='red', zorder=5))
+ax_front.add_patch(patches.Circle((w_y/2, wheel_r), wheel_r, linewidth=2, edgecolor='
