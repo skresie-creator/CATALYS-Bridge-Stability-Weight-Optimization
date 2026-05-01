@@ -168,7 +168,7 @@ ax_curve1 = plt.subplot(2, 2, 3)
 ax_curve2 = plt.subplot(2, 2, 4)
 
 # Widened X-limits to fit the newly shifted coordinate system
-ax_side.set_title("Side Profile (X-Z)"); ax_side.set_xlim(-50, 1300); ax_side.set_ylim(-50, 1300); ax_side.grid(True, linestyle='--')
+ax_side.set_title("Side Profile (X-Z)"); ax_side.set_xlim(-50, 1400); ax_side.set_ylim(-50, 1400); ax_side.grid(True, linestyle='--')
 ax_front.set_title("Front Profile (Y-Z)"); ax_front.set_xlim(-700, 700); ax_front.set_ylim(-50, 1400); ax_front.grid(True, linestyle='--')
 ax_bar.set_title("Current Safety Factors"); ax_bar.grid(axis='y', linestyle='--')
 ax_curve1.set_title("Wheelbase Expansion vs. Min Weight"); ax_curve1.set_xlabel('Added "d" to Wheelbase (mm)'); ax_curve1.set_ylabel("Min Weight (lbs)"); ax_curve1.grid(True, linestyle='--')
@@ -180,8 +180,8 @@ shift = 160.59 # Matches the coordinate shift for visual alignment
 
 # Side Profile
 ax_side.add_patch(patches.Rectangle((rear_wheel_x, 20), x_whl - rear_wheel_x, 130, linewidth=2, edgecolor='black', facecolor='darkgray', alpha=0.7))
-ax_side.add_patch(patches.Rectangle((20 + shift-150, 150), 560, 700, linewidth=2, edgecolor='black', facecolor='lightgray', alpha=0.5))
-ax_side.add_patch(patches.Rectangle((20 + shift-150, 850), 1100, 150, linewidth=2, edgecolor='black', facecolor='whitesmoke', alpha=0.9))
+ax_side.add_patch(patches.Rectangle((20 + shift-150, 150), 560, 800, linewidth=2, edgecolor='black', facecolor='lightgray', alpha=0.5))
+ax_side.add_patch(patches.Rectangle((20 + shift-150, 950), 1200, 150, linewidth=2, edgecolor='black', facecolor='whitesmoke', alpha=0.9))
 
 # Front Profile
 ax_front.add_patch(patches.Rectangle((-w_y/2, 20), w_y, 100, linewidth=2, edgecolor='black', facecolor='darkgray', alpha=0.7))
