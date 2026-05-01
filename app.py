@@ -32,30 +32,60 @@ for key, val in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = val
 
-# 2. Create a callback function to reset the memory
+# 2. Reset functionality (now clears the UI widget memory too)
 def reset_sliders():
     for key, val in defaults.items():
         st.session_state[key] = val
+        st.session_state[f"{key}_sl"] = val
+        st.session_state[f"{key}_num"] = val
 
-# 3. Add the Reset Button
 st.sidebar.button("🔄 Reset to Original Values", on_click=reset_sliders, type="primary")
-st.sidebar.markdown("*Tip: Click the number on any slider to type a precise value!*")
 st.sidebar.markdown("---")
 
-# 4. Sliders (Notice they now use 'key' instead of 'value' to tie into memory)
-cw_m = st.sidebar.slider('CW Mass (kg) [Orig: 63.4 kg / 140 lbs]', 0.0, 100.0, key='cw_m', step=0.5)
-cw_z = st.sidebar.slider('CW Height Z (mm) [Orig: 178.0]', 10.0, 500.0, key='cw_z', step=5.0)
-cw_x = st.sidebar.slider('CW Pos X (mm) [Orig: 159.0]', 0.0, 400.0, key='cw_x', step=5.0)
-cw_y = st.sidebar.slider('CW Pos Y (mm) [Orig: 0.0]', -200.0, 200.0, key='cw_y', step=5.0)
+# 3. Helper function to create a synced Slider + Text Box
+def custom_slider(label, min_v, max_v, key, step_val):
+    st.sidebar.markdown(f"**{label}**")
+    
+    sl_key = f"{key}_sl"
+    num_key = f"{key}_num"
+    
+    # First-time setup for the UI keys
+    if sl_key not in st.session_state:
+        st.session_state[sl_key] = float(st.session_state[key])
+        st.session_state[num_key] = float(st.session_state[key])
+
+    # Callbacks to keep them perfectly synced when you interact with either
+    def sync_from_slider():
+        st.session_state[num_key] = st.session_state[sl_key]
+        st.session_state[key] = st.session_state[sl_key]
+        
+    def sync_from_num():
+        st.session_state[sl_key] = st.session_state[num_key]
+        st.session_state[key] = st.session_state[num_key]
+
+    # Layout: Slider takes 70% of the width, Input box takes 30%
+    col1, col2 = st.sidebar.columns([7, 3])
+    with col1:
+        st.slider(label, float(min_v), float(max_v), key=sl_key, step=float(step_val), on_change=sync_from_slider, label_visibility="collapsed")
+    with col2:
+        st.number_input(label, float(min_v), float(max_v), key=num_key, step=float(step_val), on_change=sync_from_num, label_visibility="collapsed")
+        
+    return st.session_state[key]
+
+# 4. Generate the linked UI elements
+cw_m = custom_slider('CW Mass (kg) [Orig: 63.4]', 0.0, 100.0, 'cw_m', 0.5)
+cw_z = custom_slider('CW Height Z (mm) [Orig: 178.0]', 10.0, 500.0, 'cw_z', 5.0)
+cw_x = custom_slider('CW Pos X (mm) [Orig: 159.0]', 0.0, 400.0, 'cw_x', 5.0)
+cw_y = custom_slider('CW Pos Y (mm) [Orig: 0.0]', -200.0, 200.0, 'cw_y', 5.0)
 
 st.sidebar.markdown("---")
 
-x_whl = st.sidebar.slider('Front Wheel X Coordinate [Orig: 457.8]', 300.0, 900.0, key='x_whl', step=10.0)
-w_y = st.sidebar.slider('Wheelbase Y (mm) [Orig: 480.0]', 300.0, 900.0, key='w_y', step=10.0)
+x_whl = custom_slider('Front Wheel X [Orig: 457.8]', 300.0, 900.0, 'x_whl', 10.0)
+w_y = custom_slider('Wheelbase Y (mm) [Orig: 480.0]', 300.0, 900.0, 'w_y', 10.0)
 
 st.sidebar.markdown("---")
 
-m_stat = st.sidebar.slider('Static Mass (kg) [Orig: 145.1 kg / 320 lbs]', 100.0, 200.0, key='m_stat', step=1.0)
+m_stat = custom_slider('Static Mass (kg) [Orig: 145.1]', 100.0, 200.0, 'm_stat', 1.0)
 
 # --- MATH ENGINE ---
 def calculate_fs(cw_m, cw_x, cw_z, cw_y, w_y, x_whl, m_stat):
