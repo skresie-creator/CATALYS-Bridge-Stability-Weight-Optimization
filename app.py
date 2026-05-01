@@ -168,8 +168,8 @@ ax_curve1 = plt.subplot(2, 2, 3)
 ax_curve2 = plt.subplot(2, 2, 4)
 
 # Widened X-limits to fit the newly shifted coordinate system
-ax_side.set_title("Side Profile (X-Z)"); ax_side.set_xlim(-100, 1300); ax_side.set_ylim(-50, 1450); ax_side.grid(True, linestyle='--')
-ax_front.set_title("Front Profile (Y-Z)"); ax_front.set_xlim(-600, 600); ax_front.set_ylim(-50, 1450); ax_front.grid(True, linestyle='--')
+ax_side.set_title("Side Profile (X-Z)"); ax_side.set_xlim(-50, 1300); ax_side.set_ylim(-50, 1300); ax_side.grid(True, linestyle='--')
+ax_front.set_title("Front Profile (Y-Z)"); ax_front.set_xlim(-700, 700); ax_front.set_ylim(-50, 1400); ax_front.grid(True, linestyle='--')
 ax_bar.set_title("Current Safety Factors"); ax_bar.grid(axis='y', linestyle='--')
 ax_curve1.set_title("Wheelbase Expansion vs. Min Weight"); ax_curve1.set_xlabel('Added "d" to Wheelbase (mm)'); ax_curve1.set_ylabel("Min Weight (lbs)"); ax_curve1.grid(True, linestyle='--')
 ax_curve2.set_title("CW Repositioning vs. Min Weight"); ax_curve2.set_xlabel('CW Shift "d" (mm)'); ax_curve2.set_ylabel("Min Weight (lbs)"); ax_curve2.grid(True, linestyle='--')
