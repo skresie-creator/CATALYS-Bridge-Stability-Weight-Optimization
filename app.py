@@ -8,8 +8,9 @@ st.set_page_config(page_title="Alpha Stability Optimizer", layout="wide")
 st.title("Alpha System Stability Optimizer")
 
 # --- INITIAL SYSTEM PARAMETERS ---
+# Shifted +160.59mm to put rear wheels at X=0
 m_stat_init = 145.08
-com_x_stat = 159.0
+com_x_stat = 319.59  
 com_z_stat = 858.0
 com_y_stat = 1.81
 MIN_FS = 1.2
@@ -21,9 +22,9 @@ st.sidebar.header("Adjust Parameters")
 defaults = {
     'cw_m': 63.38,
     'cw_z': 178.0,
-    'cw_x': 159.0,
+    'cw_x': 319.59,   # Shifted +160.59
     'cw_y': 0.0,
-    'x_whl': 457.83,
+    'x_whl': 618.42,  # Shifted +160.59
     'w_y': 480.0,
     'm_stat': 145.08
 }
@@ -32,7 +33,7 @@ for key, val in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = val
 
-# 2. Reset functionality (now clears the UI widget memory too)
+# 2. Reset functionality (clears UI widget memory too)
 def reset_sliders():
     for key, val in defaults.items():
         st.session_state[key] = val
@@ -75,17 +76,18 @@ def custom_slider(label, min_v, max_v, key, step_val):
 # 4. Generate the linked UI elements
 cw_m = custom_slider('CW Mass (kg) [Orig: 63.4]', 0.0, 100.0, 'cw_m', 0.5)
 cw_z = custom_slider('CW Height Z (mm) [Orig: 178.0]', 10.0, 500.0, 'cw_z', 5.0)
-cw_x = custom_slider('CW Pos X (mm) [Orig: 159.0]', 0.0, 400.0, 'cw_x', 5.0)
+cw_x = custom_slider('CW Pos X (mm) [Orig: 319.6]', 0.0, 800.0, 'cw_x', 5.0)
 cw_y = custom_slider('CW Pos Y (mm) [Orig: 0.0]', -200.0, 200.0, 'cw_y', 5.0)
 
 st.sidebar.markdown("---")
 
-x_whl = custom_slider('Front Wheel X [Orig: 457.8]', 300.0, 900.0, 'x_whl', 10.0)
+x_whl = custom_slider('Front Wheel X [Orig: 618.4]', 400.0, 1200.0, 'x_whl', 10.0)
 w_y = custom_slider('Wheelbase Y (mm) [Orig: 480.0]', 300.0, 900.0, 'w_y', 10.0)
 
 st.sidebar.markdown("---")
 
 m_stat = custom_slider('Static Mass (kg) [Orig: 145.1]', 100.0, 200.0, 'm_stat', 1.0)
+
 
 # --- MATH ENGINE ---
 def calculate_fs(cw_m, cw_x, cw_z, cw_y, w_y, x_whl, m_stat):
@@ -106,7 +108,7 @@ def calculate_fs(cw_m, cw_x, cw_z, cw_y, w_y, x_whl, m_stat):
     # 3. Vertical Instability (Updated for Max Reach COM Shift & Dynamic hd)
     com_x_extended = (m_stat * com_x_stat + cw_m * cw_x + 7062.4) / m_new
     x1_3 = x_whl - com_x_extended
-    hd_dynamic = 1042.01 - x_whl
+    hd_dynamic = 1202.60 - x_whl  # Arm tip fixed position updated for +160.59 shift
     
     if x1_3 > 0 and hd_dynamic > 0:
         fs3 = ((weight_N * x1_3) / hd_dynamic) / 800
@@ -133,7 +135,8 @@ def calculate_fs(cw_m, cw_x, cw_z, cw_y, w_y, x_whl, m_stat):
     return [fs1, fs2, fs3, fs4, fs5], m_new, [com_x_new, com_y_new, com_z_new]
 
 def get_min_weight(cw_x, cw_z, cw_y, w_y, x_whl, m_stat):
-    for test_m in np.arange(0, 100, 2.0): 
+    # Reduced step size to 0.1 for completely smooth plots
+    for test_m in np.arange(0, 100, 0.1): 
         fs_vals, m_test, _ = calculate_fs(test_m, cw_x, cw_z, cw_y, w_y, x_whl, m_stat)
         if all(fs >= MIN_FS for fs in fs_vals):
             return m_test * 2.20462  
@@ -164,30 +167,34 @@ ax_bar = plt.subplot(2, 3, 3)
 ax_curve1 = plt.subplot(2, 2, 3)
 ax_curve2 = plt.subplot(2, 2, 4)
 
-ax_side.set_title("Side Profile (X-Z)"); ax_side.set_xlim(-300, 1000); ax_side.set_ylim(-50, 1450); ax_side.grid(True, linestyle='--')
+# Widened X-limits to fit the newly shifted coordinate system
+ax_side.set_title("Side Profile (X-Z)"); ax_side.set_xlim(-100, 1300); ax_side.set_ylim(-50, 1450); ax_side.grid(True, linestyle='--')
 ax_front.set_title("Front Profile (Y-Z)"); ax_front.set_xlim(-600, 600); ax_front.set_ylim(-50, 1450); ax_front.grid(True, linestyle='--')
 ax_bar.set_title("Current Safety Factors"); ax_bar.grid(axis='y', linestyle='--')
 ax_curve1.set_title("Wheelbase Expansion vs. Min Weight"); ax_curve1.set_xlabel('Added "d" to Wheelbase (mm)'); ax_curve1.set_ylabel("Min Weight (lbs)"); ax_curve1.grid(True, linestyle='--')
 ax_curve2.set_title("CW Repositioning vs. Min Weight"); ax_curve2.set_xlabel('CW Shift "d" (mm)'); ax_curve2.set_ylabel("Min Weight (lbs)"); ax_curve2.grid(True, linestyle='--')
 
-# Chassis drawing
-rear_wheel_x = -160.59 
+# --- CHASSIS DRAWING ---
+rear_wheel_x = 0.0
+shift = 160.59 # Matches the coordinate shift for visual alignment
 
+# Side Profile
 ax_side.add_patch(patches.Rectangle((rear_wheel_x, 20), x_whl - rear_wheel_x, 130, linewidth=2, edgecolor='black', facecolor='darkgray', alpha=0.7))
-ax_side.add_patch(patches.Rectangle((20, 150), 280, 800, linewidth=2, edgecolor='black', facecolor='lightgray', alpha=0.5))
-ax_side.add_patch(patches.Rectangle((20, 850), 700, 150, linewidth=2, edgecolor='black', facecolor='whitesmoke', alpha=0.9))
+ax_side.add_patch(patches.Rectangle((20 + shift, 150), 280, 800, linewidth=2, edgecolor='black', facecolor='lightgray', alpha=0.5))
+ax_side.add_patch(patches.Rectangle((20 + shift, 850), 700, 150, linewidth=2, edgecolor='black', facecolor='whitesmoke', alpha=0.9))
 
+# Front Profile
 ax_front.add_patch(patches.Rectangle((-w_y/2, 20), w_y, 100, linewidth=2, edgecolor='black', facecolor='darkgray', alpha=0.7))
 ax_front.add_patch(patches.Rectangle((-160, 120), 320, 830, linewidth=2, edgecolor='black', facecolor='lightgray', alpha=0.8))
 ax_front.add_patch(patches.Rectangle((-120, 200), 240, 500, linewidth=1, edgecolor='gray', facecolor='dimgray', alpha=0.6))
 ax_front.add_patch(patches.Rectangle((-200, 950), 400, 300, linewidth=2, edgecolor='darkcyan', facecolor='cadetblue', alpha=0.9))
 
-# Counterweight drawing
+# Counterweight
 cw_w, cw_h = 120, 80
 ax_side.add_patch(patches.Rectangle((cw_x - cw_w/2, cw_z - cw_h/2), cw_w, cw_h, linewidth=2, edgecolor='navy', facecolor='blue', alpha=0.9))
 ax_front.add_patch(patches.Rectangle((cw_y - cw_w/2, cw_z - cw_h/2), cw_w, cw_h, linewidth=2, edgecolor='navy', facecolor='blue', alpha=0.9))
 
-# Draw the 2-inch radius caster wheels (50.8 mm)
+# Caster Wheels (2-inch / 50.8 mm radius)
 wheel_r = 50.8
 ax_side.add_patch(patches.Circle((rear_wheel_x, wheel_r), wheel_r, linewidth=2, edgecolor='darkred', facecolor='red', zorder=5))
 ax_side.add_patch(patches.Circle((x_whl, wheel_r), wheel_r, linewidth=2, edgecolor='darkred', facecolor='red', zorder=5))
@@ -195,17 +202,17 @@ ax_side.add_patch(patches.Circle((x_whl, wheel_r), wheel_r, linewidth=2, edgecol
 ax_front.add_patch(patches.Circle((-w_y/2, wheel_r), wheel_r, linewidth=2, edgecolor='darkred', facecolor='red', zorder=5))
 ax_front.add_patch(patches.Circle((w_y/2, wheel_r), wheel_r, linewidth=2, edgecolor='darkred', facecolor='red', zorder=5))
 
-# Draw COM markers
-ax_side.plot(com_new[0], com_new[2], 'X', markersize=14, color='lime', markeredgecolor='black')
-ax_front.plot(com_new[1], com_new[2], 'X', markersize=14, color='lime', markeredgecolor='black')
+# Center of Mass Markers
+ax_side.plot(com_new[0], com_new[2], 'X', markersize=14, color='lime', markeredgecolor='black', zorder=10)
+ax_front.plot(com_new[1], com_new[2], 'X', markersize=14, color='lime', markeredgecolor='black', zorder=10)
 
-# Bar Chart
+# Safety Factors Bar Chart
 tests = ['Incline', 'Push Top', 'Push Arm', 'Obstacle', 'Shove']
 bars = ax_bar.bar(tests, current_fs, color=['mediumseagreen' if fs >= MIN_FS else 'crimson' for fs in current_fs])
 ax_bar.axhline(MIN_FS, color='black', linestyle='--', linewidth=2, label='Min (1.2)')
 ax_bar.legend()
 
-# Math curves
+# Math Optimization Curves
 d_vals_wb = np.arange(0, 201, 20)
 d_vals_cw = np.arange(-400, 1, 20)
 wt_wb = [get_min_weight(cw_x, cw_z, cw_y, w_y + d, x_whl + d, m_stat) for d in d_vals_wb]
