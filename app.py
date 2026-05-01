@@ -17,26 +17,45 @@ MIN_FS = 1.2
 # --- SIDEBAR SLIDERS ---
 st.sidebar.header("Adjust Parameters")
 
-# Adding original values to the labels so they are always visible
-cw_m = st.sidebar.slider('CW Mass (kg) [Orig: 63.4 kg / 140 lbs]', 0.0, 100.0, 63.38, 0.5)
-cw_z = st.sidebar.slider('CW Height Z (mm) [Orig: 178.0]', 10.0, 500.0, 178.0, 5.0)
-cw_x = st.sidebar.slider('CW Pos X (mm) [Orig: 159.0]', 0.0, 400.0, 159.0, 5.0)
-cw_y = st.sidebar.slider('CW Pos Y (mm) [Orig: 0.0]', -200.0, 200.0, 0.0, 5.0)
+# 1. Initialize session state memory for our original defaults
+defaults = {
+    'cw_m': 63.38,
+    'cw_z': 178.0,
+    'cw_x': 159.0,
+    'cw_y': 0.0,
+    'x_whl': 457.83,
+    'w_y': 480.0,
+    'm_stat': 145.08
+}
+
+for key, val in defaults.items():
+    if key not in st.session_state:
+        st.session_state[key] = val
+
+# 2. Create a callback function to reset the memory
+def reset_sliders():
+    for key, val in defaults.items():
+        st.session_state[key] = val
+
+# 3. Add the Reset Button
+st.sidebar.button("🔄 Reset to Original Values", on_click=reset_sliders, type="primary")
+st.sidebar.markdown("*Tip: Click the number on any slider to type a precise value!*")
+st.sidebar.markdown("---")
+
+# 4. Sliders (Notice they now use 'key' instead of 'value' to tie into memory)
+cw_m = st.sidebar.slider('CW Mass (kg) [Orig: 63.4 kg / 140 lbs]', 0.0, 100.0, key='cw_m', step=0.5)
+cw_z = st.sidebar.slider('CW Height Z (mm) [Orig: 178.0]', 10.0, 500.0, key='cw_z', step=5.0)
+cw_x = st.sidebar.slider('CW Pos X (mm) [Orig: 159.0]', 0.0, 400.0, key='cw_x', step=5.0)
+cw_y = st.sidebar.slider('CW Pos Y (mm) [Orig: 0.0]', -200.0, 200.0, key='cw_y', step=5.0)
 
 st.sidebar.markdown("---")
 
-x_whl = st.sidebar.slider('Front Wheel X Coordinate [Orig: 457.8]', 300.0, 900.0, 457.83, 10.0)
-w_y = st.sidebar.slider('Wheelbase Y (mm) [Orig: 480.0]', 300.0, 900.0, 480.0, 10.0)
+x_whl = st.sidebar.slider('Front Wheel X Coordinate [Orig: 457.8]', 300.0, 900.0, key='x_whl', step=10.0)
+w_y = st.sidebar.slider('Wheelbase Y (mm) [Orig: 480.0]', 300.0, 900.0, key='w_y', step=10.0)
 
 st.sidebar.markdown("---")
 
-m_stat = st.sidebar.slider('Static Mass (kg) [Orig: 145.1 kg / 320 lbs]', 100.0, 200.0, m_stat_init, 1.0)
-
-# We can also add a quick reset button!
-if st.sidebar.button("Reset to Original Values"):
-    # Streamlit will naturally refresh and reset the sliders to their default `value` 
-    # when the page is reloaded, but this offers a visual cue.
-    st.rerun()
+m_stat = st.sidebar.slider('Static Mass (kg) [Orig: 145.1 kg / 320 lbs]', 100.0, 200.0, key='m_stat', step=1.0)
 
 # --- MATH ENGINE ---
 def calculate_fs(cw_m, cw_x, cw_z, cw_y, w_y, x_whl, m_stat):
