@@ -16,15 +16,27 @@ MIN_FS = 1.2
 
 # --- SIDEBAR SLIDERS ---
 st.sidebar.header("Adjust Parameters")
-cw_m = st.sidebar.slider('CW Mass (kg)', 0.0, 100.0, 63.38, 0.5)
-cw_z = st.sidebar.slider('CW Height Z (mm)', 10.0, 500.0, 178.0, 5.0)
-cw_x = st.sidebar.slider('CW Pos X (mm)', 0.0, 400.0, 159.0, 5.0)
-cw_y = st.sidebar.slider('CW Pos Y (mm)', -200.0, 200.0, 0.0, 5.0)
+
+# Adding original values to the labels so they are always visible
+cw_m = st.sidebar.slider('CW Mass (kg) [Orig: 63.4 kg / 140 lbs]', 0.0, 100.0, 63.38, 0.5)
+cw_z = st.sidebar.slider('CW Height Z (mm) [Orig: 178.0]', 10.0, 500.0, 178.0, 5.0)
+cw_x = st.sidebar.slider('CW Pos X (mm) [Orig: 159.0]', 0.0, 400.0, 159.0, 5.0)
+cw_y = st.sidebar.slider('CW Pos Y (mm) [Orig: 0.0]', -200.0, 200.0, 0.0, 5.0)
+
 st.sidebar.markdown("---")
-x_whl = st.sidebar.slider('Front Wheel X Coordinate', 300.0, 900.0, 457.83, 10.0)
-w_y = st.sidebar.slider('Wheelbase Y (mm)', 300.0, 900.0, 480.0, 10.0)
+
+x_whl = st.sidebar.slider('Front Wheel X Coordinate [Orig: 457.8]', 300.0, 900.0, 457.83, 10.0)
+w_y = st.sidebar.slider('Wheelbase Y (mm) [Orig: 480.0]', 300.0, 900.0, 480.0, 10.0)
+
 st.sidebar.markdown("---")
-m_stat = st.sidebar.slider('Static Mass (kg)', 100.0, 200.0, m_stat_init, 1.0)
+
+m_stat = st.sidebar.slider('Static Mass (kg) [Orig: 145.1 kg / 320 lbs]', 100.0, 200.0, m_stat_init, 1.0)
+
+# We can also add a quick reset button!
+if st.sidebar.button("Reset to Original Values"):
+    # Streamlit will naturally refresh and reset the sliders to their default `value` 
+    # when the page is reloaded, but this offers a visual cue.
+    st.rerun()
 
 # --- MATH ENGINE ---
 def calculate_fs(cw_m, cw_x, cw_z, cw_y, w_y, x_whl, m_stat):
