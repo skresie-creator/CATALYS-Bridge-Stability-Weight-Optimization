@@ -206,6 +206,25 @@ ax_front.add_patch(patches.Circle((w_y/2, wheel_r), wheel_r, linewidth=2, edgeco
 ax_side.plot(com_new[0], com_new[2], 'X', markersize=14, color='lime', markeredgecolor='black', zorder=10)
 ax_front.plot(com_new[1], com_new[2], 'X', markersize=14, color='lime', markeredgecolor='black', zorder=10)
 
+# Static System CoM (Without Counterweight) - Red Square
+ax_side.plot(com_x_stat, com_z_stat, 's', markersize=12, color='red', markeredgecolor='black', zorder=9)
+ax_front.plot(com_y_stat, com_z_stat, 's', markersize=12, color='red', markeredgecolor='black', zorder=9)
+
+from matplotlib.lines import Line2D
+
+# Static System CoM (Without Counterweight) - Red Square
+ax_side.plot(com_x_stat, com_z_stat, 's', markersize=12, color='red', markeredgecolor='black', zorder=9)
+ax_front.plot(com_y_stat, com_z_stat, 's', markersize=12, color='red', markeredgecolor='black', zorder=9)
+
+# --- CUSTOM LEGEND ---
+legend_elements = [
+    Line2D([0], [0], marker='X', color='w', label='Combined CoM', markerfacecolor='lime', markeredgecolor='black', markersize=12),
+    Line2D([0], [0], marker='s', color='w', label='Static CoM', markerfacecolor='red', markeredgecolor='black', markersize=11),
+    patches.Patch(facecolor='blue', edgecolor='navy', linewidth=2, label='Counterweight')
+]
+# Add the legend to the Side Profile plot
+ax_side.legend(handles=legend_elements, loc='upper right', framealpha=0.9)
+
 # Safety Factors Bar Chart
 tests = ['Incline', 'Push Top', 'Push Arm', 'Obstacle', 'Shove']
 bars = ax_bar.bar(tests, current_fs, color=['mediumseagreen' if fs >= MIN_FS else 'crimson' for fs in current_fs])
