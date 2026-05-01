@@ -132,4 +132,32 @@ ax_side.add_patch(patches.Circle((rear_wheel_x, wheel_r), wheel_r, linewidth=2, 
 ax_side.add_patch(patches.Circle((x_whl, wheel_r), wheel_r, linewidth=2, edgecolor='darkred', facecolor='red', zorder=5))
 
 ax_front.add_patch(patches.Circle((-w_y/2, wheel_r), wheel_r, linewidth=2, edgecolor='darkred', facecolor='red', zorder=5))
-ax_front.add_patch(patches.Circle((w_y/2, wheel_r), wheel_r, linewidth=2, edgecolor='
+ax_front.add_patch(patches.Circle((w_y/2, wheel_r), wheel_r, linewidth=2, edgecolor='darkred', facecolor='red', zorder=5))
+
+# Draw COM markers
+ax_side.plot(com_new[0], com_new[2], 'X', markersize=14, color='lime', markeredgecolor='black')
+ax_front.plot(com_new[1], com_new[2], 'X', markersize=14, color='lime', markeredgecolor='black')
+
+# Bar Chart
+tests = ['Incline', 'Push Top', 'Push Arm', 'Obstacle', 'Shove']
+bars = ax_bar.bar(tests, current_fs, color=['mediumseagreen' if fs >= MIN_FS else 'crimson' for fs in current_fs])
+ax_bar.axhline(MIN_FS, color='black', linestyle='--', linewidth=2, label='Min (1.2)')
+ax_bar.legend()
+
+# Math curves
+d_vals_wb = np.arange(0, 201, 20)
+d_vals_cw = np.arange(-400, 1, 20)
+wt_wb = [get_min_weight(cw_x, cw_z, cw_y, w_y + d, x_whl + d, m_stat) for d in d_vals_wb]
+wt_cwx = [get_min_weight(cw_x + d, cw_z, cw_y, w_y, x_whl, m_stat) for d in d_vals_cw]
+wt_cwz = [get_min_weight(cw_x, max(cw_z + d, 10), cw_y, w_y, x_whl, m_stat) for d in d_vals_cw]
+
+ax_curve1.plot(d_vals_wb, wt_wb, 'b-', linewidth=3)
+ax_curve1.axhline(350, color='red', linestyle='--', label='Target (350 lbs)'); ax_curve1.legend()
+ax_curve1.set_xlim(0, 200)
+
+ax_curve2.plot(d_vals_cw, wt_cwx, 'g-', linewidth=3, label='X Shift (Backward)')
+ax_curve2.plot(d_vals_cw, wt_cwz, 'purple', linewidth=3, label='Z Shift (Lower)')
+ax_curve2.axhline(350, color='red', linestyle='--', label='Target (350 lbs)'); ax_curve2.legend()
+ax_curve2.set_xlim(-400, 0)
+
+st.pyplot(fig)
